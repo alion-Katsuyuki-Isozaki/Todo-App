@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TodoListController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\ExampleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,3 +23,6 @@ Route::get('/', function () {
 Route::get('/list', [TodoListController::class, 'index']);
 
 Route::resource('tasks', TaskController::class);
+
+Route::get('/example', [ExampleController::class, 'index']);
+

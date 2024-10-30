@@ -7,7 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Todo</title>
 
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/task.js'],)
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
 </head>
 
 <body class="flex flex-col min-h-[100vh]">
@@ -46,70 +49,120 @@
                   </div>
 
                 </form>
-
-                @if ($tasks->isNotEmpty())
-                    <div class="max-w-7xl mx-auto mt-20">
-                        <div class="inline-block min-w-full py-2 align-middle">
-                            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-300">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col"
-                                                class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-                                                タスク</th>
-                                            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                                <span class="sr-only">Actions</span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200 bg-white">
-                                        @foreach ($tasks as $item)
+                <form id="display-all-task" class="mb-0" action="{{ route('tasks.index')}}" method="get">
+                    <div class="d-flex align-items-center mt-3">
+                        <input id="check-display-all" type="checkbox" name="display_all" value="{{ $displayAll }}" {{ $displayAll == 'show'? 'checked' : '' }}/>
+                        <label for="check-display-all" class="m-0">完了済みも表示</label>
+                    </div>
+                    @if ($tasks->isNotEmpty())
+                        <div class="max-w-7xl mx-auto mt-0">
+                            <div class="inline-block min-w-full py-2 align-middle">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead class="bg-gray-50">
                                             <tr>
-                                                <td class="px-3 py-4 text-sm text-gray-500">
-                                                    <div>
-                                                        {{ $item->name }}
-                                                    </div>
-                                                </td>
-                                                <td class="p-0 text-right text-sm font-medium">
-                                                    <div class="flex justify-end">
-                                                        <div>
-                                                            <form action="/tasks/{{ $item->id }}"
-                                                                method="post"
-                                                                class="inline-block text-gray-500 font-medium"
-                                                                role="menuitem" tabindex="-1">
-                                                                @csrf
-                                                                @method('PUT')
-
-                                                                <input type="hidden" name="status" value="{{ $item->status }}">
-                                                                <button type="submit"
-                                                                    class="bg-emerald-700 py-4 w-20 text-white md:hover:bg-emerald-800 transition-colors">完了</button>
-                                                            </form>
-                                                        </div>
-                                                        <div>
-                                                            <a href="/tasks/{{ $item->id }}/edit/"
-                                                                class="inline-block text-center py-4 w-20 underline underline-offset-2 text-sky-600 md:hover:bg-sky-100 transition-colors">編集</a>
-                                                        </div>
-                                                        <div>
-                                                            <form onsubmit="return deleteTask()"
-                                                                action="/tasks/{{ $item->id }}" method="post"
-                                                                class="inline-block text-gray-500 font-medium"
-                                                                role="menuitem" tabindex="-1">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit"
-                                                                    class="py-4 w-20 md:hover:bg-slate-200 transition-colors">削除</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </td>
+                                                <th scope="col"
+                                                    class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                                                    タスク</th>
+                                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                                    <span class="sr-only">Actions</span>
+                                                </th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 bg-white" >
+                                            @foreach ($tasks as $item)
+                                                <tr>
+                                                @if($item->status == 0)
+
+                                                    <td class="px-3 py-4 text-sm text-gray-500">
+                                                        <div>
+                                                            {{ $item->name }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-0 text-right text-sm font-medium">
+                                                        <div class="flex justify-end">
+                                                            <div>
+                                                                <form onsubmit="return checkDisplayAll()"
+                                                                    action="/tasks/{{ $item->status }}"
+                                                                    method="post"
+                                                                    class="inline-block text-gray-500 font-medium"
+                                                                    role="menuitem" tabindex="-1">
+                                                                    @csrf
+                                                                    @method('PUT')
+
+                                                                    <button type="submit"
+                                                                    class="bg-red-700 py-4 w-20 text-white md:hover:bg-red-800 transition-colors">未完了</button>
+
+                                                                </form>
+                                                            </div>
+                                                            <div>
+                                                                <a href="/tasks/{{ $item->id }}/edit/"
+                                                                    class="inline-block text-center py-4 w-20 underline underline-offset-2 text-sky-600 md:hover:bg-sky-100 transition-colors">編集</a>
+                                                            </div>
+                                                            <div>
+                                                                <form onsubmit="return deleteTask()"
+                                                                    action="/tasks/{{ $item->id }}" method="post"
+                                                                    class="inline-block text-gray-500 font-medium"
+                                                                    role="menuitem" tabindex="-1">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" id="deleteButton"
+                                                                        class="py-4 w-20 md:hover:bg-slate-200 transition-colors">削除</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                @endif
+                                                </tr>
+                                                <tr class= "complete">
+                                                @if($item->status == 1)
+                                                    <td class="px-3 py-4 text-sm text-gray-500">
+                                                        <div>
+                                                            {{ $item->name }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-0 text-right text-sm font-medium">
+                                                        <div class="flex justify-end">
+                                                            <div>
+                                                                <form onsubmit="return checkDisplayAll()"
+                                                                    action="/tasks/{{ $item->status }}"
+                                                                    method="post"
+                                                                    class="inline-block text-gray-500 font-medium"
+                                                                    role="menuitem" tabindex="-1">
+                                                                    @csrf
+                                                                    @method('PUT')
+
+                                                                        <button type="submit"
+                                                                        class="bg-emerald-700 py-4 w-20 text-white md:hover:bg-emerald-800 transition-colors">完了</button>
+
+                                                                </form>
+                                                            </div>
+                                                            <div>
+                                                                <a href="/tasks/{{ $item->id }}/edit/"
+                                                                    class="inline-block text-center py-4 w-20 underline underline-offset-2 text-sky-600 md:hover:bg-sky-100 transition-colors">編集</a>
+                                                            </div>
+                                                            <div>
+                                                                <form onsubmit="return deleteTask()"
+                                                                    action="/tasks/{{ $item->id }}" method="post"
+                                                                    class="inline-block text-gray-500 font-medium"
+                                                                    role="menuitem" tabindex="-1">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" id="deleteButton"
+                                                                        class="py-4 w-20 md:hover:bg-slate-200 transition-colors">削除</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                @endif
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
+                </form>
             </div>
         </div>
     </main>
@@ -120,15 +173,7 @@
         </div>
     </div>
     </footer>
-    <script>
-        function deleteTask(){
-            if(confirm('本当に削除しますか？')){
-                return true;
-            }else{
-                return false;
-            }
-        }
-    </script>
+
 </body>
 
 </html>

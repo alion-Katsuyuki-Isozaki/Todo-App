@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use Illuminate\Support\Facades\Validator;
+use App\UseCases\Task\IndexAction;
 
 class TaskController extends Controller
 {
@@ -13,12 +14,11 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, IndexAction $action)
     {
-        $tasks = Task::where('status', false)->get();
-        //dd($tasks);
-        return view('tasks.index', compact('tasks'));
+        return view('tasks.index',$action($request));
     }
+
 
     /**
      * Show the form for creating a new resource.
